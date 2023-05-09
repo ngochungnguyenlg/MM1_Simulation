@@ -10,8 +10,8 @@ class MM1:
     def __init__(self, lamd, service_rate):
         self.lamd = lamd
         self.service_rate = service_rate
-        self.inter_arr = 1.1
-        self.serive_time = 1
+        self.inter_arr = 1/lamd
+        self.serive_time = 1/service_rate
         self.num_served_package = 0
 
     def set_inter_arrival_time(self, val):
