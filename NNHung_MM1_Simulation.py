@@ -132,13 +132,12 @@ class MM1:
         
         plt.ylabel("Number task in queue over time")
         plt.xlabel('Timeline {:.1f} seconds'.format(simulating_time))
-        # plt.xlim(0,60)
         plt.grid()
         plt.legend()
         plt.savefig("task in queue overtime", dpi=300)
         plt.show()
             
 if __name__ == "__main__":
-    mm1 = MM1(16, 100)
+    mm1 = MM1(1, 1)
     mm1.figure1()
     mm1.figure2()
