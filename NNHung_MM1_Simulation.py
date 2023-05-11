@@ -2,6 +2,7 @@ import numpy as np
 import copy
 import matplotlib.pyplot as plt
 import plotly.express as px
+import plotly
 import pandas as pd
 
 
@@ -14,7 +15,6 @@ class MM1:
         self.service_rate = service_rate
         self.inter_arr = 1/lamd
         self.serive_time = 1/service_rate
-        self.num_served_package = 0
 
     def set_inter_arrival_time(self, val):
         self.inter_arr = val
@@ -30,7 +30,7 @@ class MM1:
         self.service_time_l = []
         self.starting_process_time = []
         self.finish_time = []
-        while (time < simulating_time):
+        while (time <= simulating_time):
             current_inter_arr_time = np.random.exponential(self.inter_arr)
             self.inter_arr_time_l.append(current_inter_arr_time)
             self.arr_time_l.append(time)
@@ -40,6 +40,7 @@ class MM1:
             self.starting_process_time.append(time)
             self.finish_time.append(time + curr_service_time)
             time += current_inter_arr_time
+        self.nums_package = len(self.inter_arr_time_l)
 
     def adjust_time_line(self):
         self.response_time = [self.finish_time[0]]
@@ -68,6 +69,8 @@ class MM1:
 
         self.packages_q_over_time_l = []  # in queue
         self.packages_s_over_time_l = []  # in system
+
+        self.throughput = 0
         while finish_idx < nums_package:
             arrival_time = self.arr_time_l[arrive_idx] if arrive_idx < nums_package else MAX_FLOAT
             start_time = self.starting_process_time[start_idx] if start_idx < nums_package else MAX_FLOAT
@@ -77,19 +80,21 @@ class MM1:
                 arrive_idx += 1
             elif start_time <= arrival_time and start_time <= complete_time:
                 nums_change, numsq_change = 0, -1
+                self.throughput += 1
                 start_idx += 1
             else:
                 nums_change, numsq_change = -1, 0
                 finish_idx += 1
+
             num_packages_in_system += nums_change
             num_packages_in_queue += numsq_change
             self.packages_q_over_time_l.append(num_packages_in_queue)
             self.packages_s_over_time_l.append(num_packages_in_system)
+        self.simulation_printing(0, simulating_time)
 
-    def box_plot(self, waiting_l, inter_arrival_time_l, service_time_l):
+    def box_plot(self, waiting_l, inter_arrival_time_l, service_time_l, titles=[1.1, 1.4, 2.0]):
 
         labels = ['Waiting time', 'Inter arrival time', 'Service time']
-        titles = [1.1, 1.4, 2.0]
 
         # combine the whole time into one
         com_waiting_l = []
@@ -97,9 +102,7 @@ class MM1:
         com_service_time_l = []
         com_arrival_rate = []
         for i in range(len(waiting_l)):
-            # index = list(range(0, len(waiting_l[i])))
             com_arrival_rate += [str(titles[i])]*len(waiting_l[i])
-            # com_index += index
             com_waiting_l += waiting_l[i]
             com_inter_arrival_time_l += inter_arrival_time_l[i]
             com_service_time_l += service_time_l[i]
@@ -114,7 +117,6 @@ class MM1:
             'Inter Arrival rate':  com_arrival_rate
         }
         df = pd.DataFrame(df, index=None)
-
         new_df = df.melt(
             id_vars=['index', 'Inter Arrival rate'], value_vars=labels)
         new_df.rename({'variable': 'Metrics', 'value': 'Time'},
@@ -125,11 +127,41 @@ class MM1:
         fig.update_layout(
             font=dict(
                 family="Courier New, monospace",
-                size=18,  # Set the font size here
+                size=30,
                 color="RebeccaPurple"
             )
         )
-        fig.write_image('hung.png', scale=6, width=2160, height=1080)
+        return fig
+
+    def simulation_printing(self, plot=False, time = 100):
+        sim_duration = self.finish_time[self.nums_package-1]
+        inter_arrival_mean = np.mean(self.inter_arr_time_l)
+        arrival_mean = 1/inter_arrival_mean
+        waiting_mean = np.mean(self.wait_time_l)
+        service_mean = np.mean(self.service_time_l)
+        service_rate = 1/service_mean
+        respone_mean = np.mean(self.response_time)
+        nums_q_package_mean = np.mean(self.packages_q_over_time_l)
+        nums_s_package_mean = np.mean(self.packages_s_over_time_l)
+
+        print("---------simulation result of inter arrival rate (IAR)={:.1f} and in {:d} seconds ------------".format(self.inter_arr,time))
+        
+        print("simulation duration {:1f}".format(sim_duration))
+        print("Inter arrival time mean {:3f}".format(inter_arrival_mean))
+        print("Arrival time mean {:3f}".format(arrival_mean))
+        print("Waiting time mean {:3f}".format(waiting_mean))
+        print("Service time mean {:3f}".format(service_mean))
+        print("Service rate mean {:3f}".format(service_rate))
+        print("Response time mean {:3f}".format(respone_mean))
+        print("Number of packages in queue {:3f}".format(nums_q_package_mean))
+        print("Number of packages in system {:3f}".format(nums_s_package_mean))
+        print("Throughput {:3f}".format(self.throughput/sim_duration))
+
+        if plot:
+            fig = self.box_plot([self.wait_time_l], [self.inter_arr_time_l], [
+                self.response_time], titles=[self.serive_time])
+            plotly.offline.plot(
+                fig, filename='./MM1_result_for_{}.html'.format(self.inter_arr))
 
     def figure1(self):
         simulating_time = 6000
@@ -139,13 +171,15 @@ class MM1:
         service_time_l = []
         for iat in inter_arrival_time_config:
             self.set_inter_arrival_time(iat)
+            self.set_inter_service_time(1)
             self.MM1(simulating_time=simulating_time)
             waiting_l.append(copy.deepcopy(self.wait_time_l))
             inter_arrival_time_l.append(copy.deepcopy(self.inter_arr_time_l))
             service_time_l.append(copy.deepcopy(
                 self.response_time))  # response time
-        self.box_plot(waiting_l, inter_arrival_time_l, service_time_l)
-
+        fig = self.box_plot(waiting_l, inter_arrival_time_l, service_time_l)
+        plotly.offline.plot(
+            fig, filename='./MM1_different_inter_arr_rate.html')
         for idx, iat in enumerate(inter_arrival_time_config):
             plt.figure(figsize=(14, 8))
             ax1 = plt.subplot(311)
@@ -168,12 +202,13 @@ class MM1:
 
     def figure2(self):
         simulating_time = 60
-        inter_arrival_time_config = [1.1, 1.5, 2.0,]
+        inter_arrival_time_config = [1.1, 1.5, 2.0]
 
         plt.figure(figsize=(14, 8))
 
         for idx, iat in enumerate(inter_arrival_time_config):
             self.set_inter_arrival_time(iat)
+            self.set_inter_service_time(1)
             self.MM1(simulating_time=simulating_time)
             plt.plot(self.packages_q_over_time_l,
                      label='Inter arrival time = {:.1f}'.format(iat))
@@ -182,6 +217,8 @@ class MM1:
         plt.xlabel('Timeline {:.1f} seconds'.format(simulating_time))
         plt.grid()
         plt.legend()
+        plt.xlim(0)
+        plt.ylim(0)
         plt.savefig("task in queue overtime", dpi=300)
         plt.show()
 
