@@ -15,7 +15,9 @@ class MM1:
         self.service_rate = service_rate
         self.inter_arr = 1/lamd
         self.serive_time = 1/service_rate
-
+        text_file = open('simulation_results.txt', 'w')
+        text_file.close()
+       
     def set_inter_arrival_time(self, val):
         self.inter_arr = val
 
@@ -143,10 +145,12 @@ class MM1:
         respone_mean = np.mean(self.response_time)
         nums_q_package_mean = np.mean(self.packages_q_over_time_l)
         nums_s_package_mean = np.mean(self.packages_s_over_time_l)
+        text_file = open('simulation_results.txt', 'a')
 
         print("---------simulation result of inter arrival rate (IAR)={:.1f} and in {:d} seconds ------------".format(self.inter_arr,time))
-        
+        text_file.write("---------simulation result of inter arrival rate (IAR)={:.1f} and in {:d} seconds ------------\n".format(self.inter_arr,time))
         print("simulation duration {:1f}".format(sim_duration))
+     
         print("Inter arrival time mean {:3f}".format(inter_arrival_mean))
         print("Arrival time mean {:3f}".format(arrival_mean))
         print("Waiting time mean {:3f}".format(waiting_mean))
@@ -155,13 +159,28 @@ class MM1:
         print("Response time mean {:3f}".format(respone_mean))
         print("Number of packages in queue {:3f}".format(nums_q_package_mean))
         print("Number of packages in system {:3f}".format(nums_s_package_mean))
-        print("Throughput {:3f}".format(self.throughput/sim_duration))
-
+        # print("Throughput {:3f}".format(self.throughput/sim_duration))
+        
+        
+        text_file.write("simulation duration {:1f}\n".format(sim_duration))
+     
+        text_file.write("Inter arrival time mean {:3f}\n".format(inter_arrival_mean))
+        text_file.write("Arrival time mean {:3f}\n".format(arrival_mean))
+        text_file.write("Waiting time mean {:3f}\n".format(waiting_mean))
+        text_file.write("Service time mean {:3f}\n".format(service_mean))
+        text_file.write("Service rate mean {:3f}\n".format(service_rate))
+        text_file.write("Response time mean {:3f}\n".format(respone_mean))
+        text_file.write("Number of packages in queue {:3f}\n".format(nums_q_package_mean))
+        text_file.write("Number of packages in system {:3f}\n".format(nums_s_package_mean))
+        # text_file.write("Throughput {:3f}\n".format(self.throughput/sim_duration))
+        text_file.close()
         if plot:
             fig = self.box_plot([self.wait_time_l], [self.inter_arr_time_l], [
                 self.response_time], titles=[self.serive_time])
             plotly.offline.plot(
                 fig, filename='./MM1_result_for_{}.html'.format(self.inter_arr))
+            fig.write_image('./MM1_result_for_{}.png'.format(self.inter_arr), scale=6, width=2160, height=1080) 
+
 
     def figure1(self):
         simulating_time = 6000
@@ -180,6 +199,7 @@ class MM1:
         fig = self.box_plot(waiting_l, inter_arrival_time_l, service_time_l)
         plotly.offline.plot(
             fig, filename='./MM1_different_inter_arr_rate.html')
+        fig.write_image('./MM1_different_inter_arr_rate.png', scale=6, width=2160, height=1080) 
         for idx, iat in enumerate(inter_arrival_time_config):
             plt.figure(figsize=(14, 8))
             ax1 = plt.subplot(311)
