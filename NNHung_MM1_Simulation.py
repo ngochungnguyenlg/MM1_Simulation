@@ -17,7 +17,7 @@ class MM1:
         self.serive_time = 1/service_rate
         text_file = open('simulation_results.txt', 'w')
         text_file.close()
-       
+
     def set_inter_arrival_time(self, val):
         self.inter_arr = val
 
@@ -45,7 +45,7 @@ class MM1:
         self.nums_package = len(self.inter_arr_time_l)
 
     def adjust_time_line(self):
-        self.response_time = [self.finish_time[0]]
+        self.response_time = [self.service_time_l[0]]
         for idx in range(1, len(self.starting_process_time)):
             self.starting_process_time[idx] = max(
                 self.starting_process_time[idx], self.finish_time[idx-1])
@@ -72,7 +72,14 @@ class MM1:
         self.packages_q_over_time_l = []  # in queue
         self.packages_s_over_time_l = []  # in system
 
-        self.throughput = 0
+        time_gap = 0
+        now = 0
+        pre = 0
+
+        self.time_gap_l = []
+        
+        self.time_actual_event = []
+
         while finish_idx < nums_package:
             arrival_time = self.arr_time_l[arrive_idx] if arrive_idx < nums_package else MAX_FLOAT
             start_time = self.starting_process_time[start_idx] if start_idx < nums_package else MAX_FLOAT
@@ -80,18 +87,29 @@ class MM1:
             if arrival_time <= start_time and arrival_time <= complete_time:
                 nums_change, numsq_change = 1, 1
                 arrive_idx += 1
+                now = arrival_time
             elif start_time <= arrival_time and start_time <= complete_time:
                 nums_change, numsq_change = 0, -1
-                self.throughput += 1
                 start_idx += 1
+                now = start_time
+
             else:
                 nums_change, numsq_change = -1, 0
                 finish_idx += 1
+                now = complete_time
 
+            time_gap = now - pre
+            
+            self.time_gap_l.append(time_gap)
+            if len(self.time_gap_l) ==1:
+                self.time_actual_event.append(0)
+            else: 
+                self.time_actual_event.append(time_gap + self.time_actual_event[-1])
             num_packages_in_system += nums_change
             num_packages_in_queue += numsq_change
             self.packages_q_over_time_l.append(num_packages_in_queue)
             self.packages_s_over_time_l.append(num_packages_in_system)
+            pre = now
         self.simulation_printing(0, simulating_time)
 
     def box_plot(self, waiting_l, inter_arrival_time_l, service_time_l, titles=[1.1, 1.4, 2.0]):
@@ -135,7 +153,7 @@ class MM1:
         )
         return fig
 
-    def simulation_printing(self, plot=False, time = 100):
+    def simulation_printing(self, plot=False, time=100):
         sim_duration = self.finish_time[self.nums_package-1]
         inter_arrival_mean = np.mean(self.inter_arr_time_l)
         arrival_mean = 1/inter_arrival_mean
@@ -143,14 +161,18 @@ class MM1:
         service_mean = np.mean(self.service_time_l)
         service_rate = 1/service_mean
         respone_mean = np.mean(self.response_time)
-        nums_q_package_mean = np.mean(self.packages_q_over_time_l)
-        nums_s_package_mean = np.mean(self.packages_s_over_time_l)
+        nums_q_package_mean = np.sum(
+            np.array(self.packages_q_over_time_l)*np.array(self.time_gap_l))/sim_duration
+        nums_s_package_mean = np.sum(
+            np.array(self.packages_s_over_time_l)*np.array(self.time_gap_l))/sim_duration
         text_file = open('simulation_results.txt', 'a')
 
-        print("---------simulation result of inter arrival rate (IAR)={:.1f} and in {:d} seconds ------------".format(self.inter_arr,time))
-        text_file.write("---------simulation result of inter arrival rate (IAR)={:.1f} and in {:d} seconds ------------\n".format(self.inter_arr,time))
+        print(
+            "---------simulation result of inter arrival rate (IAR)={:.1f} and in {:d} seconds ------------".format(self.inter_arr, time))
+        text_file.write(
+            "---------simulation result of inter arrival rate (IAR)={:.1f} and in {:d} seconds ------------\n".format(self.inter_arr, time))
         print("simulation duration {:1f}".format(sim_duration))
-     
+
         print("Inter arrival time mean {:3f}".format(inter_arrival_mean))
         print("Arrival time mean {:3f}".format(arrival_mean))
         print("Waiting time mean {:3f}".format(waiting_mean))
@@ -159,28 +181,28 @@ class MM1:
         print("Response time mean {:3f}".format(respone_mean))
         print("Number of packages in queue {:3f}".format(nums_q_package_mean))
         print("Number of packages in system {:3f}".format(nums_s_package_mean))
-        # print("Throughput {:3f}".format(self.throughput/sim_duration))
-        
-        
+
         text_file.write("simulation duration {:1f}\n".format(sim_duration))
-     
-        text_file.write("Inter arrival time mean {:3f}\n".format(inter_arrival_mean))
+
+        text_file.write(
+            "Inter arrival time mean {:3f}\n".format(inter_arrival_mean))
         text_file.write("Arrival time mean {:3f}\n".format(arrival_mean))
         text_file.write("Waiting time mean {:3f}\n".format(waiting_mean))
         text_file.write("Service time mean {:3f}\n".format(service_mean))
         text_file.write("Service rate mean {:3f}\n".format(service_rate))
         text_file.write("Response time mean {:3f}\n".format(respone_mean))
-        text_file.write("Number of packages in queue {:3f}\n".format(nums_q_package_mean))
-        text_file.write("Number of packages in system {:3f}\n".format(nums_s_package_mean))
-        # text_file.write("Throughput {:3f}\n".format(self.throughput/sim_duration))
+        text_file.write(
+            "Number of packages in queue {:3f}\n".format(nums_q_package_mean))
+        text_file.write(
+            "Number of packages in system {:3f}\n".format(nums_s_package_mean))
         text_file.close()
         if plot:
             fig = self.box_plot([self.wait_time_l], [self.inter_arr_time_l], [
                 self.response_time], titles=[self.serive_time])
             plotly.offline.plot(
                 fig, filename='./MM1_result_for_{}.html'.format(self.inter_arr))
-            fig.write_image('./MM1_result_for_{}.png'.format(self.inter_arr), scale=6, width=2160, height=1080) 
-
+            fig.write_image(
+                './MM1_result_for_{}.png'.format(self.inter_arr), scale=6, width=2160, height=1080)
 
     def figure1(self):
         simulating_time = 6000
@@ -199,7 +221,8 @@ class MM1:
         fig = self.box_plot(waiting_l, inter_arrival_time_l, service_time_l)
         plotly.offline.plot(
             fig, filename='./MM1_different_inter_arr_rate.html')
-        fig.write_image('./MM1_different_inter_arr_rate.png', scale=6, width=2160, height=1080) 
+        fig.write_image('./MM1_different_inter_arr_rate.png',
+                        scale=6, width=2160, height=1080)
         for idx, iat in enumerate(inter_arrival_time_config):
             plt.figure(figsize=(14, 8))
             ax1 = plt.subplot(311)
@@ -230,9 +253,12 @@ class MM1:
             self.set_inter_arrival_time(iat)
             self.set_inter_service_time(1)
             self.MM1(simulating_time=simulating_time)
-            plt.plot(self.packages_q_over_time_l,
+            even_l = [0]*len(self.time_gap_l)
+            plt.plot(self.time_actual_event,self.packages_q_over_time_l,
                      label='Inter arrival time = {:.1f}'.format(iat))
 
+        plt.axvline(x=simulating_time,ls='--', color = 'red')
+        
         plt.ylabel("Number task in queue over time")
         plt.xlabel('Timeline {:.1f} seconds'.format(simulating_time))
         plt.grid()

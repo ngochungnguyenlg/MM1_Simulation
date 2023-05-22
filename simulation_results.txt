@@ -1,60 +1,60 @@
 ---------simulation result of inter arrival rate (IAR)=1.1 and in 6000 seconds ------------
-simulation duration 6010.611799
-Inter arrival time mean 1.093629
-Arrival time mean 0.914387
-Waiting time mean 8.210737
-Service time mean 1.020078
-Service rate mean 0.980317
-Response time mean 9.230776
-Number of packages in queue 7.650082
-Number of packages in system 8.916165
+simulation duration 6000.958698
+Inter arrival time mean 1.090046
+Arrival time mean 0.917392
+Waiting time mean 11.681635
+Service time mean 1.005366
+Service rate mean 0.994663
+Response time mean 12.686527
+Number of packages in queue 10.797791
+Number of packages in system 12.128522
 ---------simulation result of inter arrival rate (IAR)=1.5 and in 6000 seconds ------------
-simulation duration 6000.600019
-Inter arrival time mean 1.567481
-Arrival time mean 0.637966
-Waiting time mean 1.783013
-Service time mean 1.002323
-Service rate mean 0.997683
-Response time mean 2.785152
-Number of packages in queue 1.441978
-Number of packages in system 2.407069
+simulation duration 6001.440675
+Inter arrival time mean 1.477305
+Arrival time mean 0.676908
+Waiting time mean 2.071988
+Service time mean 1.010778
+Service rate mean 0.989337
+Response time mean 3.082493
+Number of packages in queue 1.709853
+Number of packages in system 2.541715
 ---------simulation result of inter arrival rate (IAR)=2.0 and in 6000 seconds ------------
-simulation duration 6000.955820
-Inter arrival time mean 1.988774
-Arrival time mean 0.502822
-Waiting time mean 0.985706
-Service time mean 0.998020
-Service rate mean 1.001984
-Response time mean 1.983813
-Number of packages in queue 0.838471
-Number of packages in system 1.673959
+simulation duration 5995.667578
+Inter arrival time mean 1.987873
+Arrival time mean 0.503050
+Waiting time mean 0.984570
+Service time mean 0.997597
+Service rate mean 1.002409
+Response time mean 1.982889
+Number of packages in queue 0.992045
+Number of packages in system 1.500412
 ---------simulation result of inter arrival rate (IAR)=1.1 and in 60 seconds ------------
-simulation duration 54.381953
-Inter arrival time mean 1.142683
-Arrival time mean 0.875133
-Waiting time mean 1.742082
-Service time mean 0.857094
-Service rate mean 1.166733
-Response time mean 2.628924
-Number of packages in queue 2.111111
-Number of packages in system 3.240741
+simulation duration 64.062061
+Inter arrival time mean 0.990440
+Arrival time mean 1.009652
+Waiting time mean 6.057176
+Service time mean 0.996232
+Service rate mean 1.003782
+Response time mean 7.064753
+Number of packages in queue 5.895066
+Number of packages in system 7.274980
 ---------simulation result of inter arrival rate (IAR)=1.5 and in 60 seconds ------------
-simulation duration 61.535724
-Inter arrival time mean 1.234486
-Arrival time mean 0.810054
-Waiting time mean 1.270712
-Service time mean 0.911190
-Service rate mean 1.097466
-Response time mean 2.179754
-Number of packages in queue 1.108844
-Number of packages in system 2.115646
+simulation duration 58.513254
+Inter arrival time mean 1.412009
+Arrival time mean 0.708211
+Waiting time mean 0.889352
+Service time mean 0.962041
+Service rate mean 1.039456
+Response time mean 1.860652
+Number of packages in queue 0.918192
+Number of packages in system 1.726164
 ---------simulation result of inter arrival rate (IAR)=2.0 and in 60 seconds ------------
-simulation duration 61.239076
-Inter arrival time mean 2.441336
-Arrival time mean 0.409612
-Waiting time mean 0.900663
-Service time mean 1.030434
-Service rate mean 0.970465
-Response time mean 1.926419
-Number of packages in queue 0.613333
-Number of packages in system 1.386667
+simulation duration 60.915248
+Inter arrival time mean 1.827019
+Arrival time mean 0.547340
+Waiting time mean 0.610854
+Service time mean 1.048231
+Service rate mean 0.953988
+Response time mean 1.643785
+Number of packages in queue 0.899249
+Number of packages in system 1.371105
